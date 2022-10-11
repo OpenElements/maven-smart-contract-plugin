@@ -15,7 +15,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
 
-@Mojo(name = "compile-smart-contract", defaultPhase = LifecyclePhase.COMPILE)
+@Mojo(name = "compile", defaultPhase = LifecyclePhase.COMPILE)
 public class CompileSmartContracts extends AbstractMojo {
 
 	@Parameter(defaultValue = "${project}", required = true, readonly = true)
