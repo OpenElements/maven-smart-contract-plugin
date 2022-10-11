@@ -51,7 +51,7 @@ public class CompileSmartContracts extends AbstractMojo {
 							"Compiling " + contract.toFile().getAbsolutePath() + " to " + targetDirForContract.toFile().getAbsolutePath());
 
 					final ProcessBuilder processBuilder = new ProcessBuilder("solc", "--overwrite", "-o",
-							targetDirForContract.toFile().getAbsolutePath(), "--bin", "--abi",
+							targetDirForContract.toFile().getAbsolutePath(), "--bin", "--abi", "--metadata",
 							contract.toFile().getAbsolutePath());
 					processBuilder.directory(contractsSourceDir.toFile());
 					processBuilder.redirectErrorStream(true);
