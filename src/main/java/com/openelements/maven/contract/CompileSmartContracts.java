@@ -1,5 +1,9 @@
 package com.openelements.maven.contract;
 
+import com.openelements.jsolidity.compiler.SolidityCompiler;
+import com.openelements.jsolidity.compiler.SolidityCompilerOutputType;
+import com.openelements.jsolidity.compiler.SolidityCompilerResult;
+import java.io.File;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
@@ -50,18 +54,18 @@ public class CompileSmartContracts extends AbstractMojo {
 					getLog().debug(
 							"Compiling " + contract.toFile().getAbsolutePath() + " to " + targetDirForContract.toFile().getAbsolutePath());
 
-					final ProcessBuilder processBuilder = new ProcessBuilder("solc", "--overwrite", "-o",
-							targetDirForContract.toFile().getAbsolutePath(), "--bin", "--abi", "--metadata",
-							contract.toFile().getAbsolutePath());
-					processBuilder.directory(contractsSourceDir.toFile());
-					processBuilder.redirectErrorStream(true);
-					processBuilder.inheritIO();
-					final Process process = processBuilder.start();
-					final int result = process.waitFor();
-					if (result != 0) {
-						throw new IllegalStateException(
-								"Error in compiling " + contract.toFile().getAbsolutePath() + ". Process ended with " + result);
-					}
+					SolidityCompiler compiler = new SolidityCompiler(contractsSourceDir.toFile(), contract.toFile().getAbsolutePath(), Set.of(SolidityCompilerOutputType.values()));
+					SolidityCompilerResult result = compiler.compile();
+
+					targetDirForContract.toFile().mkdirs();
+
+					final String contractName = contract.toFile().getName().substring(0, contract.toFile().getName().length() - 4);
+					final Path binFile = Path.of(targetDirForContract.toFile().getAbsolutePath(), contractName + ".bin");
+					Files.writeString(binFile, result.contracts().iterator().next().bin());
+
+					final Path abiFile = Path.of(targetDirForContract.toFile().getAbsolutePath(), contractName + ".abi");
+					Files.writeString(abiFile, result.contracts().iterator().next().rawAbi());
+
 				} catch (final Exception e) {
 					throw new IllegalStateException("Error in compiling " + contract.toFile().getAbsolutePath(), e);
 				}
